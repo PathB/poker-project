@@ -1,0 +1,98 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 5rem);
+  grid-template-rows: 8rem 2rem 8rem;
+  gap: 1rem;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.button-container {
+  grid-column: span 5;
+  grid-row: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.player-cards-container {
+  grid-column: span 5;
+  grid-row: 3;
+  display: grid;
+  grid-template-columns: repeat(5, 5rem);
+  gap: 1rem;
+}
+
+.board-cards-container {
+  /* width: 50%; */
+  grid-column: span 5;
+  grid-row: 4;
+  display: grid;
+  grid-template-columns: repeat(5, 5rem);
+  gap: 1rem;
+}
+
+.bet-button {
+  background-color: lightgreen;
+  border: none;
+  color: rgb(0, 0, 0);
+  padding: 15px 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+.bet-button:hover {
+  background-color: #45a049;
+}
+
+
+.card {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  border: 1px solid black;
+  border-radius: .5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 4rem;
+}
+
+.card.red {
+  color: red;
+}
+
+.card.black {
+  color: black;
+}
+
+.card::before,
+.card::after {
+  position: absolute;
+  content: attr(data-value);
+  font-size: 1rem;
+}
+
+.card::before {
+  top: .5rem;
+  left: .5rem
+}
+
+.card::after {
+  bottom: .5rem;
+  right: .5rem;
+  transform: rotate(180deg);
+}
