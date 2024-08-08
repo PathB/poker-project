@@ -62,65 +62,57 @@ function startRound() {
 
 function evaluateHand(player, board) {
     const fullHand = player.hand.concat(board)
+ 
+    console.log(fullHand)
 
-    // if (isFlush(fullHand) && isStraight(fullHand))
-    //     return "straight-flush"
-    // else if(isFourOfAKind(fullHand))
-    //     return "four-of-a-kind"
-    // else if(isFullHouse(fullHand))
-    //     return "full-house"
-    // else if(isFlush(fullHand))
-    //     return "flush"
-    // else if(isStraight(fullHand))
-    //     return "straight"
-    // else if(isSet(fullHand))
-    //     return "three-of-a-kind"
-    // else if(isTwoPair(fullHand))
-    //     return "two-pair"
-    // else if(isPair(fullHand))
-    //     return "pair"
-    // else
-    //     return "high-card"
-    // if (isFlush(fullHand))
-    //     return "flush"
-    if(isFlush(fullHand))
+    if (isStraightFlush(fullHand))
+        return "straight-flush"
+    else if (isFourOfAKind(fullHand))
+        return "four-of-a-kind"
+    else if(isFullHouse(fullHand))
+        return "full-house"
+    else if (isFlush(fullHand))
         return "flush"
-    else if(isStraight(fullHand))
+    else if (isStraight(fullHand))
         return "straight"
+     else if(isSet(fullHand))
+         return "three-of-a-kind"
+    else if(isTwoPair(fullHand))
+        return "two-pair"
+    else if(isPair(fullHand))
+        return "pair"
     else
-        return "nothing"
+        return "high-card"
 
-    function isFlush(fullHand) {
-        let flush = false
-        sortBySuit(fullHand)
-        for (let i = 0; i < 3; i++) {
-            if (fullHand[i].suit === fullHand[i + 4].suit && flush === false) {
-                flush = true
+
+
+    function isFlush(hand) {
+        sortBySuit(hand)
+        for (let i = 0; i < hand.length - 4; i++) {
+            if (hand[i].suit === hand[i + 4].suit) {
+                return true
             }
         }
-        return flush
+        return false
     }
-    function isStraight(fullHand) {
-        sortByValue(fullHand)
-        for (let i = 0; i < 3; i++) {
-            let valueHand = fullHand.slice(i, i+5)
+    function isStraight(hand) {
+        sortByValue(hand)
+        for (let i = 0; i < hand.length - 4; i++) {
+            let valueHand = hand.slice(i, i + 5)
             if (valueHand[4].value === "A") {
-                let test1 =
+                let case1 =
                     valueHand[0].value === "2" &&
                     valueHand[1].value === "3" &&
                     valueHand[2].value === "4" &&
                     valueHand[3].value === "5"
-                let test2 =
+                let case2 =
                     valueHand[0].value === "10" &&
                     valueHand[1].value === "J" &&
                     valueHand[2].value === "Q" &&
                     valueHand[3].value === "K"
-                if(test1 || test2){
+                if (case1 || case2) {
                     return true
-                }else{
-                    continue
                 }
-
             } else {
                 let compareValue = CARD_VALUE_MAP[valueHand[0].value] + 1
                 let count = 0
@@ -128,48 +120,122 @@ function evaluateHand(player, board) {
                     if (CARD_VALUE_MAP[valueHand[j].value] == compareValue) {
                         compareValue++
                         count++
-                        if(count == 4)
-                            return true
-                    }                  
+                        if (count == 4) return true
+                    }
                 }
             }
         }
         return false
     }
+    function isStraightFlush(hand){
+        sortBySuit(hand)
+        for(let i = 0; i < hand.length - 4; i++){
+            if (hand[i].suit === hand[hand.length-1].suit){
+                let suitedCards = hand.slice(i, hand.length)
+                return isStraight(suitedCards)
+            }else if(hand[i].suit === hand[hand.length-2].suit && (hand.length-2)-i >= 5){
+                let suitedCards = hand.slice(i, hand.length-1)
+                return isStraight(suitedCards)
+            }else if(hand[i].suit === hand[hand.length-3].suit && (hand.length-3)-i >= 5){
+                let suitedCards = hand.slice(i, hand.length-2)
+                return isStraight(suitedCards)
+            }
+        }
+        return false
+    }
+    function isFourOfAKind(hand) {
+        sortByValue(hand)
+        for (let i = 0; i < hand.length - 3; i++) {
+            if (hand[i].value === hand[i + 1].value &&
+                hand[i + 1].value === hand[i + 2].value &&
+                hand[i + 2].value === hand[i + 3].value) {
+                return true
+            }
+        }
+        return false
+    }
+    function isFullHouse(hand) {
+        sortByValue(hand)
+        for (let i = 0; i < hand.length - 4; i++) {
+            let case1 =
+                hand[i].value === hand[i + 1].value &&
+                hand[i + 1].value === hand[i + 2].value &&
+                hand[i + 3].value === hand[i + 4].value
+            let case2 =
+                hand[i].value === hand[i + 1].value &&
+                hand[i + 2].value === hand[i + 3].value &&
+                hand[i + 3].value === hand[i + 4].value
+            if (case1 || case2) {
+                return true
+            }
+        }
+        return false
+    }
 
-    function sortBySuit(fullHand) {
+    function isSet(hand){
+        sortByValue(hand)
+        for(let i = 0; i < hand.length - 2; i++){
+            if(hand[i].value === hand[i+2].value){
+                return true
+            }
+        }
+        return false
+    }
+
+    function isTwoPair(hand){
+        sortByValue(hand)
+        for(let i = 0; i < hand.length - 1; i++){
+            if(hand[i].value === hand[i+1].value){
+                let restOfHand = hand.slice(i+2 , hand.length)
+                return isPair(restOfHand)
+            }
+        }
+        return false
+    }
+
+    function isPair(hand){
+        sortByValue(hand)
+        for(let i = 0; i < hand.length - 1; i++){
+            if(hand[i].value === hand[i+1].value){
+                return true
+            }
+        }
+        return false
+    }
+
+    function sortBySuit(hand) {
         let smallest
-        for (let i = 0; i < fullHand.length; i++) {
+        for (let i = 0; i < hand.length; i++) {
             smallest = i
-            for (let j = i + 1; j < fullHand.length; j++) {
-                if (fullHand[j].suit < fullHand[smallest].suit) {
+            for (let j = i + 1; j < hand.length; j++) {
+                if (hand[j].suit < hand[smallest].suit) {
                     smallest = j
                 }
             }
-            let temp = fullHand[i]
-            fullHand[i] = fullHand[smallest]
-            fullHand[smallest] = temp
+            let temp = hand[i]
+            hand[i] = hand[smallest]
+            hand[smallest] = temp
         }
     }
-    function sortByValue(fullHand) {
+    function sortByValue(hand) {
         let smallest
-        for (let i = 0; i < fullHand.length; i++) {
+        for (let i = 0; i < hand.length; i++) {
             smallest = i
-            for (let j = i + 1; j < fullHand.length; j++) {
-                if (CARD_VALUE_MAP[fullHand[j].value] < CARD_VALUE_MAP[fullHand[smallest].value]) {
+            for (let j = i + 1; j < hand.length; j++) {
+                if (CARD_VALUE_MAP[hand[j].value] < CARD_VALUE_MAP[hand[smallest].value]) {
                     smallest = j
                 }
             }
-            let temp = fullHand[i]
-            fullHand[i] = fullHand[smallest]
-            fullHand[smallest] = temp
+            let temp = hand[i]
+            hand[i] = hand[smallest]
+            hand[smallest] = temp
         }
     }
-    // function isFourOfAKind(fullHand)
-    // function isFullHouse(fullHand)
-    // function isSet(fullHand)
-    // function isTwoPair(fullHand)
-    // function isPair(fullHand)
+
+    // function isFullHouse(hand)
+    // function isSet(hand)
+    // function isTwoPair(hand)
+    // function isPair(hand)
 
 
 
