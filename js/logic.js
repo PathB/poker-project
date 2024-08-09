@@ -1,6 +1,28 @@
 import Deck from "./deck.js"
 import Player from "./player.js"
 
+let player1;
+
+document.getElementById("betSlider").addEventListener("input", function() {
+    var sliderValue = this.value;
+    document.getElementById("betSlider").max = player1.chips
+    document.getElementById("userInput").value = sliderValue
+
+});
+
+document.getElementById("betButton").addEventListener("click", function() {
+    var input = Math.abs(document.getElementById("userInput").value)
+    if (player1.chips >= input > 0){
+        console.log("Bet amount: " + input);
+        player1.removeChips(input)
+        player1.updateChipsDisplay()
+        
+    }else{
+        alert("Invalid input")
+    }
+    
+});
+
 const HAND_RANKINGS = [
     "high-card",
     "pair",
@@ -40,7 +62,8 @@ function startRound() {
     const deck = new Deck
     let board = []
     deck.shuffle()
-    const player1 = new Player
+    player1 = new Player(500)
+    player1.updateChipsDisplay()
     player1.hand.push(deck.pop(), deck.pop())
     board.push(deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop())
 
@@ -48,6 +71,7 @@ function startRound() {
 
     playerCardSlot1.appendChild(player1.hand[0].getHTML())
     playerCardSlot2.appendChild(player1.hand[1].getHTML())
+
     boardCardSlot1.appendChild(board[0].getHTML())
     boardCardSlot2.appendChild(board[1].getHTML())
     boardCardSlot3.appendChild(board[2].getHTML())
@@ -231,12 +255,4 @@ function evaluateHand(player, board) {
             hand[smallest] = temp
         }
     }
-
-    // function isFullHouse(hand)
-    // function isSet(hand)
-    // function isTwoPair(hand)
-    // function isPair(hand)
-
-
-
 }

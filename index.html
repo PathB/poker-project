@@ -16,12 +16,17 @@
         <div class="board-card-slot-4 card-slot"></div>
         <div class="board-card-slot-5 card-slot"></div>
     </div>
-    <div class="button-container">
-        <button type="button" class="bet-button">Bet</button>
-    </div>
     <div class="player-cards-container">
         <div class="player-card-slot-1 card-slot"></div>
         <div class="player-card-slot-2 card-slot"></div>
+    </div>
+    <div id="chips-display" class="chips-display"></div>
+    <div class="player-menu-container">
+        <input type="range" id="betSlider" min="0" step="1">
+        <input type="number" id="userInput" class="bet-input" placeholder="Bet amount" min="0">
+        <button type="button" id="betButton" class="bet-button">Bet</button>
+        <button type="button" id="checkButton" class="bet-button">Check</button>
+        <button type="button" id="foldButton" class="bet-button">Fold</button>
     </div>
 </body>
 
