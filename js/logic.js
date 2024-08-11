@@ -1,7 +1,10 @@
 import Deck from "./deck.js"
 import Player from "./player.js"
 
-let player1;
+let player1, opponent, pot, largestBet;
+
+player1 = new Player(500, "chips-display")
+opponent = new Player(500, "chips-display-opponent")
 
 document.getElementById("betSlider").addEventListener("input", function() {
     var sliderValue = this.value;
@@ -16,7 +19,13 @@ document.getElementById("betButton").addEventListener("click", function() {
         console.log("Bet amount: " + input);
         player1.removeChips(input)
         player1.updateChipsDisplay()
-        
+        let potDisplay = document.getElementById("pot-display")
+        pot = parseInt(potDisplay.innerText) + input
+        potDisplay.innerText = pot
+
+        if(largestBet < input){
+            largestBet = input
+        }
     }else{
         alert("Invalid input")
     }
@@ -51,6 +60,8 @@ const CARD_VALUE_MAP = {
 }
 const playerCardSlot1 = document.querySelector(".player-card-slot-1")
 const playerCardSlot2 = document.querySelector(".player-card-slot-2")
+const opponentCardSlot1 = document.querySelector(".opponent-card-slot-1")
+const opponentCardSlot2 = document.querySelector(".opponent-card-slot-2")
 const boardCardSlot1 = document.querySelector(".board-card-slot-1")
 const boardCardSlot2 = document.querySelector(".board-card-slot-2")
 const boardCardSlot3 = document.querySelector(".board-card-slot-3")
@@ -62,21 +73,32 @@ function startRound() {
     const deck = new Deck
     let board = []
     deck.shuffle()
-    player1 = new Player(500)
     player1.updateChipsDisplay()
     player1.hand.push(deck.pop(), deck.pop())
+    opponent.hand.push(deck.pop(), deck.pop())
     board.push(deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop())
 
     let gameStage = "preflop"
+    pot = 0
+    largestBet = 0
 
     playerCardSlot1.appendChild(player1.hand[0].getHTML())
     playerCardSlot2.appendChild(player1.hand[1].getHTML())
+    
+
+    // opponentCardSlot1.innerHTML = ""
+    // opponentCardSlot2.innerHTML = ""
+    // opponentCardSlot1.appendChild(opponent.hand[0].getHTML())
+    // opponentCardSlot2.appendChild(opponent.hand[1].getHTML())
+   
 
     boardCardSlot1.appendChild(board[0].getHTML())
     boardCardSlot2.appendChild(board[1].getHTML())
     boardCardSlot3.appendChild(board[2].getHTML())
     boardCardSlot4.appendChild(board[3].getHTML())
     boardCardSlot5.appendChild(board[4].getHTML())
+
+    opponent.updateChipsDisplay()
 
     console.log(board)
     console.log(deck)
@@ -255,4 +277,9 @@ function evaluateHand(player, board) {
             hand[smallest] = temp
         }
     }
+}
+
+function opponentBet(opponent, largestBet){
+    const random = Math.random() * 10
+    // TODO
 }
