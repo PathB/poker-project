@@ -6,31 +6,7 @@ let player1, opponent, pot, largestBet;
 player1 = new Player(500, "chips-display")
 opponent = new Player(500, "chips-display-opponent")
 
-document.getElementById("betSlider").addEventListener("input", function() {
-    var sliderValue = this.value;
-    document.getElementById("betSlider").max = player1.chips
-    document.getElementById("userInput").value = sliderValue
 
-});
-
-document.getElementById("betButton").addEventListener("click", function() {
-    var input = Math.abs(document.getElementById("userInput").value)
-    if (player1.chips >= input > 0){
-        console.log("Bet amount: " + input);
-        player1.removeChips(input)
-        player1.updateChipsDisplay()
-        let potDisplay = document.getElementById("pot-display")
-        pot = parseInt(potDisplay.innerText) + input
-        potDisplay.innerText = pot
-
-        if(largestBet < input){
-            largestBet = input
-        }
-    }else{
-        alert("Invalid input")
-    }
-    
-});
 
 const HAND_RANKINGS = [
     "high-card",
@@ -67,6 +43,9 @@ const boardCardSlot2 = document.querySelector(".board-card-slot-2")
 const boardCardSlot3 = document.querySelector(".board-card-slot-3")
 const boardCardSlot4 = document.querySelector(".board-card-slot-4")
 const boardCardSlot5 = document.querySelector(".board-card-slot-5")
+const opponentBetStack = document.getElementById("oppnent-current-bet")
+const playerBetStack =  document.getElementById("player-current-bet")
+const potDisplay = document.getElementById("pot-display")
 startRound()
 
 function startRound() {
@@ -74,9 +53,10 @@ function startRound() {
     let board = []
     deck.shuffle()
     player1.updateChipsDisplay()
+    opponent.updateChipsDisplay()
     player1.hand.push(deck.pop(), deck.pop())
     opponent.hand.push(deck.pop(), deck.pop())
-    board.push(deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop())
+    
 
     let gameStage = "preflop"
     pot = 0
@@ -84,26 +64,35 @@ function startRound() {
 
     playerCardSlot1.appendChild(player1.hand[0].getHTML())
     playerCardSlot2.appendChild(player1.hand[1].getHTML())
+
     
 
+
+
+    //board.push(deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop())
+    
+    // Do this on showdown
     // opponentCardSlot1.innerHTML = ""
     // opponentCardSlot2.innerHTML = ""
     // opponentCardSlot1.appendChild(opponent.hand[0].getHTML())
     // opponentCardSlot2.appendChild(opponent.hand[1].getHTML())
    
 
-    boardCardSlot1.appendChild(board[0].getHTML())
-    boardCardSlot2.appendChild(board[1].getHTML())
-    boardCardSlot3.appendChild(board[2].getHTML())
-    boardCardSlot4.appendChild(board[3].getHTML())
-    boardCardSlot5.appendChild(board[4].getHTML())
+    // boardCardSlot1.appendChild(board[0].getHTML())
+    // boardCardSlot2.appendChild(board[1].getHTML())
+    // boardCardSlot3.appendChild(board[2].getHTML())
+    // boardCardSlot4.appendChild(board[3].getHTML())
+    // boardCardSlot5.appendChild(board[4].getHTML())
 
-    opponent.updateChipsDisplay()
+    switch(gameStage){
+        case "preflop":
+            opponentBet(opponent, largestBet)
 
-    console.log(board)
-    console.log(deck)
-    console.log(player1.hand)
-    console.log(evaluateHand(player1, board))
+
+
+    }
+   
+    
 }
 
 function evaluateHand(player, board) {
@@ -279,7 +268,61 @@ function evaluateHand(player, board) {
     }
 }
 
+
+
 function opponentBet(opponent, largestBet){
-    const random = Math.random() * 10
-    // TODO
+    const random =  8 //Math.floor(Math.random() * 10)
+    console.log(random)
+    let potDisplay = document.getElementById("pot-display")
+    const betIncrease = largestBet - parseInt(opponentBetStack.innerHTML)
+    const currentBet = opponentBetStack .innerHTML
+    if(random < 3){ //fold
+        alert("Opponent folded, you win!")
+    }else if(2 < random && random < 8){ //check-call
+        if(opponent.chips >= largestBet){
+            opponentBetStack.innerHTML = `${largestBet}`
+            opponent.removeChips(betIncrease)
+            potDisplay.innerText = parseInt(potDisplay.innerText + betIncrease)
+            console.log("Opponent calls")
+        }else{
+            const call = opponent.chips + currentBet
+            opponent.removeChips(opponent.chips)
+            opponentBetStack.innerHTML = `${call}`
+            console.log("Opponent calls and is all in")
+        }
+    }else{ //raise
+        const raise = Math.floor(Math.random() * (opponent.chips))
+        largestBet = largestBet + raise
+        opponentBetStack.innerHTML = `${largestBet}`
+        opponent.removeChips(raise)
+        potDisplay.innerHTML = parseInt(potDisplay.innerHTML + raise)
+        console.log(`Opponent raises to ${largestBet}`)
+    }
+
 }
+
+document.getElementById("betSlider").addEventListener("input", function() {
+    var sliderValue = this.value;
+    document.getElementById("betSlider").max = player1.chips
+    document.getElementById("userInput").value = sliderValue
+
+});
+
+document.getElementById("betButton").addEventListener("click", function() {
+    var input = Math.abs(document.getElementById("userInput").value)
+    if (player1.chips >= input > 0){
+        console.log("Bet amount: " + input);
+        player1.removeChips(input)
+        playerBetStack.innerHTML = `${input}`
+        let potDisplay = document.getElementById("pot-display")
+        pot = parseInt(potDisplay.innerText) + input
+        potDisplay.innerText = pot
+
+        if(largestBet < input){
+            largestBet = input
+        }
+    }else{
+        alert("Invalid input")
+    }
+    
+});
