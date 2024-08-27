@@ -73,10 +73,14 @@ async function startRound() {
     while (inRound) {
         switch (gameStage) {
             case "preflop":
-                opponentAction(opponent)
-                await playerAction(player1)
-                let opponentBet = parseInt(opponentBetStack.innerText)
-                let playerBet = parseInt(playerBetStack.innerText)
+                let opponentBet = opponentAction(opponent)
+                let playerBet = await playerAction(player1)
+                //let opponentBet = parseInt(opponentBetStack.innerText)
+                //let playerBet = parseInt(playerBetStack.innerText)
+                if (playerBet === "Fold") {
+                    inRound = false
+                    break
+                }
                 if (playerBet === opponentBet) {
                     gameStage = "flop"
                     playerBetStack.innerHTML = 0
@@ -88,10 +92,14 @@ async function startRound() {
                     console.log(board)
                 }
             case "flop":
-                opponentAction(opponent)
-                await playerAction(player1)
-                opponentBet = parseInt(opponentBetStack.innerText)
-                playerBet = parseInt(playerBetStack.innerText)
+                opponentBet = opponentAction(opponent)
+                playerBet = await playerAction(player1)
+                //opponentBet = parseInt(opponentBetStack.innerText)
+                //playerBet = parseInt(playerBetStack.innerText)
+                if(playerBet === "Fold"){
+                    inRound = false
+                    break
+                }
                 if (playerBet === opponentBet) {
                     gameStage = "turn"
                     playerBetStack.innerHTML = 0
@@ -101,10 +109,14 @@ async function startRound() {
                     console.log(board)
                 }
             case "turn":
-                opponentAction(opponent)
-                await playerAction(player1)
-                opponentBet = parseInt(opponentBetStack.innerText)
-                playerBet = parseInt(playerBetStack.innerText)
+                opponentBet = opponentAction(opponent)
+                playerBet = await playerAction(player1)
+                //opponentBet = parseInt(opponentBetStack.innerText)
+                //playerBet = parseInt(playerBetStack.innerText)
+                if(playerBet === "Fold"){
+                    inRound = false
+                    break
+                }
                 if (playerBet === opponentBet) {
                     gameStage = "river"
                     playerBetStack.innerHTML = 0
@@ -114,10 +126,14 @@ async function startRound() {
                     console.log(board)
                 }
             case "river":
-                opponentAction(opponent)
-                await playerAction(player1)
-                opponentBet = parseInt(opponentBetStack.innerText)
-                playerBet = parseInt(playerBetStack.innerText)
+                opponentBet = opponentAction(opponent)
+                playerBet = await playerAction(player1)
+                //opponentBet = parseInt(opponentBetStack.innerText)
+                //playerBet = parseInt(playerBetStack.innerText)
+                if(playerBet === "Fold"){
+                    inRound = false
+                    break
+                }
                 if (playerBet === opponentBet) {
                     gameStage = "showdown"
                     playerBetStack.innerHTML = 0
@@ -380,6 +396,7 @@ function opponentAction(opponent) {
         opponent.removeChips(raise)
         potDisplay.innerText = parseInt(potDisplay.innerText) + raise
         console.log(`Opponent raises to ${newBet}`)
+        return newBet
     }
 
 }
@@ -419,7 +436,7 @@ document.getElementById("dealButton").addEventListener("click", () => {
 
 function playerAction(player) {
     return new Promise((resolve) => {
-        const handleBet = () => {
+        const handleBet = () => { //bet
             const input = parseInt(document.getElementById("userInput").value)
             const opponentBet = parseInt(opponentBetStack.innerHTML)
             const playerCurrentBet = parseInt(playerBetStack.innerHTML)
@@ -441,7 +458,7 @@ function playerAction(player) {
             }
         }
 
-        const handleCheck = () => {
+        const handleCheck = () => { //check or call
             const opponentBet = parseInt(opponentBetStack.innerHTML)
             const playerCurrentBet = parseInt(playerBetStack.innerHTML)
             const toCall = opponentBet - playerCurrentBet
@@ -461,8 +478,29 @@ function playerAction(player) {
             }
         }
 
+        const handleFold = () => {
+            const pot = parseInt(potDisplay.innerHTML)
+            opponentCardSlot1.innerHTML = ""
+            opponentCardSlot2.innerHTML = ""
+            boardCardSlot1.innerHTML = ""
+            boardCardSlot2.innerHTML = ""
+            boardCardSlot3.innerHTML = ""
+            boardCardSlot4.innerHTML = ""
+            boardCardSlot5.innerHTML = ""
+            opponent.addChips(pot)
+            opponentBetStack.innerHTML = 0
+            playerBetStack.innerHTML = 0
+            playerCardSlot1.innerHTML = ""
+            playerCardSlot2.innerHTML = ""
+            potDisplay.innerHTML = 0
+            document.getElementById("dealButton").style.visibility = "visible"
+            resolve("Fold")
+
+        }
+
         document.getElementById("betButton").addEventListener("click", handleBet, { once: true })
         document.getElementById("checkButton").addEventListener("click", handleCheck, { once: true })
+        document.getElementById("foldButton").addEventListener("click", handleFold, { once: true })
     })
 }
 
