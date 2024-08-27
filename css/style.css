@@ -80,18 +80,39 @@ body {
   border: none;
   color: rgb(0, 0, 0);
   padding: 20px 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  text-align: center;
   font-size: 16px;
   margin: 2px 2px;
   cursor: pointer;
   border-radius: 12px;
   text-decoration: none;
-  width: 100px;
+  width: 120px;
+}
+.deal-button{
+  display: flex;
+  position: absolute;
+  bottom: 50%;
+  right: 20%;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  background-color: lightgreen;
+  border: none;
+  color: rgb(0, 0, 0);
+  padding: 20px 32px;
+  font-size: 16px;
+  text-align: center;
+  margin: 2px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+  text-decoration: none;
+
 }
 
 .bet-button:hover {
+  background-color: #45a049;
+}
+.deal-button:hover{
   background-color: #45a049;
 }
 

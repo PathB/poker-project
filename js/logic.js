@@ -44,19 +44,20 @@ const boardCardSlot3 = document.querySelector(".board-card-slot-3")
 const boardCardSlot4 = document.querySelector(".board-card-slot-4")
 const boardCardSlot5 = document.querySelector(".board-card-slot-5")
 const opponentBetStack = document.getElementById("oppnent-current-bet")
-const playerBetStack =  document.getElementById("player-current-bet")
+const playerBetStack = document.getElementById("player-current-bet")
 const potDisplay = document.getElementById("pot-display")
-startRound()
+
+player1.updateChipsDisplay()
+opponent.updateChipsDisplay()
 
 async function startRound() {
     const deck = new Deck
     let board = []
     deck.shuffle()
-    player1.updateChipsDisplay()
-    opponent.updateChipsDisplay()
+
     player1.hand.push(deck.pop(), deck.pop())
     opponent.hand.push(deck.pop(), deck.pop())
-    
+
     console.log(opponent.hand)
     console.log(player1.hand)
 
@@ -65,16 +66,18 @@ async function startRound() {
 
     playerCardSlot1.appendChild(player1.hand[0].getHTML())
     playerCardSlot2.appendChild(player1.hand[1].getHTML())
+    opponentCardSlot1.appendChild(createOpponentHiddenCards("opponent-card-1"))
+    opponentCardSlot2.appendChild(createOpponentHiddenCards("opponent-card-2"))
 
-
-    while(true){
-        switch(gameStage){
+    let inRound = true
+    while (inRound) {
+        switch (gameStage) {
             case "preflop":
                 opponentAction(opponent)
                 await playerAction(player1)
                 let opponentBet = parseInt(opponentBetStack.innerText)
                 let playerBet = parseInt(playerBetStack.innerText)
-                if(playerBet === opponentBet){
+                if (playerBet === opponentBet) {
                     gameStage = "flop"
                     playerBetStack.innerHTML = 0
                     opponentBetStack.innerHTML = 0
@@ -89,7 +92,7 @@ async function startRound() {
                 await playerAction(player1)
                 opponentBet = parseInt(opponentBetStack.innerText)
                 playerBet = parseInt(playerBetStack.innerText)
-                if(playerBet === opponentBet){
+                if (playerBet === opponentBet) {
                     gameStage = "turn"
                     playerBetStack.innerHTML = 0
                     opponentBetStack.innerHTML = 0
@@ -102,7 +105,7 @@ async function startRound() {
                 await playerAction(player1)
                 opponentBet = parseInt(opponentBetStack.innerText)
                 playerBet = parseInt(playerBetStack.innerText)
-                if(playerBet === opponentBet){
+                if (playerBet === opponentBet) {
                     gameStage = "river"
                     playerBetStack.innerHTML = 0
                     opponentBetStack.innerHTML = 0
@@ -115,65 +118,80 @@ async function startRound() {
                 await playerAction(player1)
                 opponentBet = parseInt(opponentBetStack.innerText)
                 playerBet = parseInt(playerBetStack.innerText)
-                if(playerBet === opponentBet){
-                    gameStage  = "showdown"
+                if (playerBet === opponentBet) {
+                    gameStage = "showdown"
                     playerBetStack.innerHTML = 0
                     opponentBetStack.innerHTML = 0
                 }
             case "showdown":
-                    opponentCardSlot1.innerHTML = ""
-                    opponentCardSlot2.innerHTML = ""
-                    opponentCardSlot1.appendChild(opponent.hand[0].getHTML())
-                    opponentCardSlot2.appendChild(opponent.hand[1].getHTML())
-                    const playerHand = evaluateHand(player1, board)
-                    const opponentHand = evaluateHand(opponent, board)
-                    const pot = parseInt(potDisplay.innerText)
-                    if(HAND_RANKINGS.indexOf(playerHand) > HAND_RANKINGS.indexOf(opponentHand)){
-                        //alert(`You win ${pot} $ with ${playerHand} !`)
-                        setTimeout(3000)
-                        player1.addChips(pot)
-                        potDisplay.innerText = 0
-                    }else if(HAND_RANKINGS.indexOf(playerHand) < HAND_RANKINGS.indexOf(opponentHand)){
-                        //alert(`You lose, opponent wins with ${opponentHand} !`)
-                        setTimeout(3000)
-                        opponent.addChips(pot)
-                        potDisplay.innerText = 0
-                    }else{
-                        //alert(`Draw, players split the pot of ${pot} $`)
-                        setTimeout(3000)
-                        player1.addChips(Math.floor(pot/2))
-                        opponent.addChips(Math.floor(pot/2))
-                        potDisplay.innerText = 0
-                    }
-                    boardCardSlot1.innerHTML = ""
-                    boardCardSlot2.innerHTML = ""
-                    boardCardSlot3.innerHTML = ""
-                    boardCardSlot4.innerHTML = ""
-                    boardCardSlot5.innerHTML = ""
+                opponentCardSlot1.innerHTML = ""
+                opponentCardSlot2.innerHTML = ""
+                opponentCardSlot1.appendChild(opponent.hand[0].getHTML())
+                opponentCardSlot2.appendChild(opponent.hand[1].getHTML())
+                console.log("we got here")
+                inRound = false
+                potDisplay.innerText = 0
+                document.getElementById("dealButton").style.visibility = "visible"
+                boardCardSlot1.innerHTML = ""
+                boardCardSlot2.innerHTML = ""
+                boardCardSlot3.innerHTML = ""
+                boardCardSlot4.innerHTML = ""
+                boardCardSlot5.innerHTML = ""
+                opponentCardSlot1.innerHTML = ""
+                opponentCardSlot2.innerHTML = ""
+                playerCardSlot1.innerHTML = ""
+                playerCardSlot2.innerHTML = ""
+                break
+            // const playerHand = evaluateHand(player1, board)
+            // const opponentHand = evaluateHand(opponent, board)
+            // const pot = parseInt(potDisplay.innerText)
+            // if(HAND_RANKINGS.indexOf(playerHand) > HAND_RANKINGS.indexOf(opponentHand)){
+            //     //alert(`You win ${pot} $ with ${playerHand} !`)
+            //     setTimeout(3000)
+            //     player1.addChips(pot)
+            //     potDisplay.innerText = 0
+            // }else if(HAND_RANKINGS.indexOf(playerHand) < HAND_RANKINGS.indexOf(opponentHand)){
+            //     //alert(`You lose, opponent wins with ${opponentHand} !`)
+            //     setTimeout(3000)
+            //     opponent.addChips(pot)
+            //     potDisplay.innerText = 0
+            // }else{
+            //     //alert(`Draw, players split the pot of ${pot} $`)
+            //     setTimeout(3000)
+            //     player1.addChips(Math.floor(pot/2))
+            //     opponent.addChips(Math.floor(pot/2))
+            //     potDisplay.innerText = 0
+            // }
+            // boardCardSlot1.innerHTML = ""
+            // boardCardSlot2.innerHTML = ""
+            // boardCardSlot3.innerHTML = ""
+            // boardCardSlot4.innerHTML = ""
+            // boardCardSlot5.innerHTML = ""
+            // break
         }
     }
 }
 
 function evaluateHand(player, board) {
     const fullHand = player.hand.concat(board)
- 
+
     console.log(fullHand)
 
     if (isStraightFlush(fullHand))
         return "straight-flush"
     else if (isFourOfAKind(fullHand))
         return "four-of-a-kind"
-    else if(isFullHouse(fullHand))
+    else if (isFullHouse(fullHand))
         return "full-house"
     else if (isFlush(fullHand))
         return "flush"
     else if (isStraight(fullHand))
         return "straight"
-     else if(isSet(fullHand))
-         return "three-of-a-kind"
-    else if(isTwoPair(fullHand))
+    else if (isSet(fullHand))
+        return "three-of-a-kind"
+    else if (isTwoPair(fullHand))
         return "two-pair"
-    else if(isPair(fullHand))
+    else if (isPair(fullHand))
         return "pair"
     else
         return "high-card"
@@ -221,17 +239,17 @@ function evaluateHand(player, board) {
         }
         return false
     }
-    function isStraightFlush(hand){
+    function isStraightFlush(hand) {
         sortBySuit(hand)
-        for(let i = 0; i < hand.length - 4; i++){
-            if (hand[i].suit === hand[hand.length-1].suit){
+        for (let i = 0; i < hand.length - 4; i++) {
+            if (hand[i].suit === hand[hand.length - 1].suit) {
                 let suitedCards = hand.slice(i, hand.length)
                 return isStraight(suitedCards)
-            }else if(hand[i].suit === hand[hand.length-2].suit && (hand.length-2)-i >= 5){
-                let suitedCards = hand.slice(i, hand.length-1)
+            } else if (hand[i].suit === hand[hand.length - 2].suit && (hand.length - 2) - i >= 5) {
+                let suitedCards = hand.slice(i, hand.length - 1)
                 return isStraight(suitedCards)
-            }else if(hand[i].suit === hand[hand.length-3].suit && (hand.length-3)-i >= 5){
-                let suitedCards = hand.slice(i, hand.length-2)
+            } else if (hand[i].suit === hand[hand.length - 3].suit && (hand.length - 3) - i >= 5) {
+                let suitedCards = hand.slice(i, hand.length - 2)
                 return isStraight(suitedCards)
             }
         }
@@ -266,31 +284,31 @@ function evaluateHand(player, board) {
         return false
     }
 
-    function isSet(hand){
+    function isSet(hand) {
         sortByValue(hand)
-        for(let i = 0; i < hand.length - 2; i++){
-            if(hand[i].value === hand[i+2].value){
+        for (let i = 0; i < hand.length - 2; i++) {
+            if (hand[i].value === hand[i + 2].value) {
                 return true
             }
         }
         return false
     }
 
-    function isTwoPair(hand){
+    function isTwoPair(hand) {
         sortByValue(hand)
-        for(let i = 0; i < hand.length - 1; i++){
-            if(hand[i].value === hand[i+1].value){
-                let restOfHand = hand.slice(i+2 , hand.length)
+        for (let i = 0; i < hand.length - 1; i++) {
+            if (hand[i].value === hand[i + 1].value) {
+                let restOfHand = hand.slice(i + 2, hand.length)
                 return isPair(restOfHand)
             }
         }
         return false
     }
 
-    function isPair(hand){
+    function isPair(hand) {
         sortByValue(hand)
-        for(let i = 0; i < hand.length - 1; i++){
-            if(hand[i].value === hand[i+1].value){
+        for (let i = 0; i < hand.length - 1; i++) {
+            if (hand[i].value === hand[i + 1].value) {
                 return true
             }
         }
@@ -328,25 +346,24 @@ function evaluateHand(player, board) {
 }
 
 
-
-function opponentAction(opponent){
-    const random =  8 //Math.floor(Math.random() * 10)
+function opponentAction(opponent) {
+    const random = 8 //Math.floor(Math.random() * 10)
     console.log(random)
     let potDisplay = document.getElementById("pot-display")
     const playerBet = parseInt(playerBetStack.innerHTML)
     const currentBet = parseInt(opponentBetStack.innerHTML)
     const toCall = playerBet - currentBet
-    if(random < 3){ //fold
+    if (random < 3) { //fold
         alert("Opponent folded, you win!")
-    }else if(2 < random && random < 8){ //check-call
-        if(opponent.chips >= largestBet){
+    } else if (2 < random && random < 8) { //check-call
+        if (opponent.chips >= largestBet) {
             opponentBetStack.innerHTML = `${largestBet}`
             opponent.removeChips(betIncrease)
             pot = parseInt(potDisplay.innerText) + betIncrease
             potDisplay.innerText = pot
             console.log("Opponent calls")
             return largestBet
-        }else{
+        } else {
             const call = opponent.chips + currentBet
             opponent.removeChips(opponent.chips)
             opponentBetStack.innerHTML = `${call}`
@@ -355,64 +372,97 @@ function opponentAction(opponent){
             console.log("Opponent calls and is all in")
             return largestBet
         }
-    }else{ //raise
+    } else { //raise
         //const raise = Math.floor(Math.random() * (opponent.chips - toCall + 1)) + toCall
         const raise = 20
-        const newBet= currentBet + raise
+        const newBet = currentBet + raise
         opponentBetStack.innerHTML = `${newBet}`
         opponent.removeChips(raise)
         potDisplay.innerText = parseInt(potDisplay.innerText) + raise
-        console.log(`Opponent raises to ${newBet}`)  
+        console.log(`Opponent raises to ${newBet}`)
     }
 
 }
 
-document.getElementById("betSlider").addEventListener("input", function() {
-    var sliderValue = this.value;
+function createOpponentHiddenCards(cardId) {
+    const cardDiv = document.createElement("div")
+    cardDiv.classList.add("card", "back")
+    cardDiv.id = cardId
+    return cardDiv
+}
+
+function updateCheckButtonText() {
+    const opponentBet = parseInt(opponentBetStack.innerHTML)
+    const checkButton = document.getElementById("checkButton")
+
+    if (opponentBet === 0) {
+        checkButton.innerText = "Check"
+    } else {
+        checkButton.innerText = "Call"
+    }
+}
+
+const observer = new MutationObserver(updateCheckButtonText);
+observer.observe(opponentBetStack, { childList: true })
+
+document.getElementById("betSlider").addEventListener("input", function (event) {
+    let sliderValue = event.target.value;
     document.getElementById("betSlider").max = player1.chips
     document.getElementById("userInput").value = sliderValue
 
 })
 
+document.getElementById("dealButton").addEventListener("click", () => {
+    document.getElementById("dealButton").style.visibility = "hidden"
+    startRound()
+})
+
 function playerAction(player) {
     return new Promise((resolve) => {
-        document.getElementById("betButton").addEventListener("click", function() {
-            var input = Math.abs(document.getElementById("userInput").value)
+        const handleBet = () => {
+            const input = parseInt(document.getElementById("userInput").value)
             const opponentBet = parseInt(opponentBetStack.innerHTML)
             const playerCurrentBet = parseInt(playerBetStack.innerHTML)
             const toCall = opponentBet - playerCurrentBet
-            if (player.chips >= input && input > 0 && input >= toCall ) {
+
+            if (input < toCall || input < 0 || input > player.chips || isNaN(input)) {
+                alert("Invalid input! Please enter a valid bet amount.")
+                document.getElementById("betButton").addEventListener("click", handleBet, { once: true })
+            } else {
                 console.log("Bet amount: " + input)
                 player.removeChips(input)
                 let currentBet = parseInt(document.getElementById("player-current-bet").innerHTML)
                 let newBet = currentBet + input
                 document.getElementById("player-current-bet").innerHTML = `${newBet}`
                 let potDisplay = document.getElementById("pot-display")
-                pot = parseInt(potDisplay.innerText) + input
+                let pot = parseInt(potDisplay.innerText) + input
                 potDisplay.innerText = pot
-                resolve(input);
-            } else {
-                alert("Invalid input")
+                resolve(input)
             }
-        }, { once: true })
+        }
+
+        const handleCheck = () => {
+            const opponentBet = parseInt(opponentBetStack.innerHTML)
+            const playerCurrentBet = parseInt(playerBetStack.innerHTML)
+            const toCall = opponentBet - playerCurrentBet
+
+            if (toCall > player.chips) {
+                alert("You don't have enough chips to match the opponent's bet.")
+            } else {
+                player.removeChips(toCall)
+                let currentBet = parseInt(document.getElementById("player-current-bet").innerHTML)
+                let newBet = currentBet + toCall
+                document.getElementById("player-current-bet").innerHTML = `${newBet}`
+                let potDisplay = document.getElementById("pot-display")
+                let pot = parseInt(potDisplay.innerText) + toCall
+                potDisplay.innerText = pot
+                console.log("Matched opponent's bet: " + toCall)
+                resolve(toCall)
+            }
+        }
+
+        document.getElementById("betButton").addEventListener("click", handleBet, { once: true })
+        document.getElementById("checkButton").addEventListener("click", handleCheck, { once: true })
     })
 }
 
-// document.getElementById("betButton").addEventListener("click", function() {
-//     var input = Math.abs(document.getElementById("userInput").value)
-//     if (player1.chips >= input > 0){
-//         console.log("Bet amount: " + input);
-//         player1.removeChips(input)
-//         playerBetStack.innerHTML = `${input}`
-//         let potDisplay = document.getElementById("pot-display")
-//         pot = parseInt(potDisplay.innerText) + input
-//         potDisplay.innerText = pot
-
-//         if(largestBet < input){
-//             largestBet = input
-//         }
-//     }else{
-//         alert("Invalid input")
-//     }
-    
-// });

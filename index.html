@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="css/style.css" </head>
 
 <body>
-    <div class="opponent-cards-container">
+    <div class="opponent-cards-container" id="opponent-cards-container">
         <div class="opponent-card-slot-1 card-slot">
-            <div class="card back" id="opponent-card-1"></div>
+            <!-- <div class="card back" id="opponent-card-1"></div> -->
         </div>
         <div class="opponent-card-slot-2 card-slot">
-            <div class="card back" id="opponent-card-2"></div>
+            <!-- <div class="card back" id="opponent-card-2"></div> -->
         </div>
     </div>
     <div id="chips-display-opponent" class="chips-display" type="number"></div>
@@ -33,8 +33,9 @@
         <div class="player-card-slot-2 card-slot"></div>
     </div>
     <div id="chips-display" class="chips-display" type="number"></div>
+    <button type="button" id="dealButton" class="deal-button">Deal Cards</button>
     <div class="player-menu-container">
-        <input type="range" id="betSlider" min="0" step="1">
+        <input type="range" id="betSlider" min="0" step="5">
         <input type="number" id="userInput" class="bet-input" placeholder="Bet amount" min="0">
         <button type="button" id="betButton" class="bet-button">Bet</button>
         <button type="button" id="checkButton" class="bet-button">Check</button>
