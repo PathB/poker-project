@@ -53,6 +53,8 @@ opponent.updateChipsDisplay()
 async function startRound() {
     const deck = new Deck
     let board = []
+    player1.hand = []
+    opponent.hand = []
     deck.shuffle()
 
     player1.hand.push(deck.pop(), deck.pop())
@@ -64,6 +66,16 @@ async function startRound() {
     let gameStage = "preflop"
     potDisplay.innerHTML = 0
 
+    boardCardSlot1.innerHTML = ""
+    boardCardSlot2.innerHTML = ""
+    boardCardSlot3.innerHTML = ""
+    boardCardSlot4.innerHTML = ""
+    boardCardSlot5.innerHTML = ""
+    opponentCardSlot1.innerHTML = ""
+    opponentCardSlot2.innerHTML = ""
+    playerCardSlot1.innerHTML = ""
+    playerCardSlot2.innerHTML = ""
+
     playerCardSlot1.appendChild(player1.hand[0].getHTML())
     playerCardSlot2.appendChild(player1.hand[1].getHTML())
     opponentCardSlot1.appendChild(createOpponentHiddenCards("opponent-card-1"))
@@ -73,10 +85,8 @@ async function startRound() {
     while (inRound) {
         switch (gameStage) {
             case "preflop":
-                let opponentBet = opponentAction(opponent)
+                let opponentBet = await opponentAction(opponent)
                 let playerBet = await playerAction(player1)
-                //let opponentBet = parseInt(opponentBetStack.innerText)
-                //let playerBet = parseInt(playerBetStack.innerText)
                 if (playerBet === "Fold") {
                     inRound = false
                     break
@@ -92,11 +102,9 @@ async function startRound() {
                     console.log(board)
                 }
             case "flop":
-                opponentBet = opponentAction(opponent)
+                opponentBet = await opponentAction(opponent)
                 playerBet = await playerAction(player1)
-                //opponentBet = parseInt(opponentBetStack.innerText)
-                //playerBet = parseInt(playerBetStack.innerText)
-                if(playerBet === "Fold"){
+                if (playerBet === "Fold") {
                     inRound = false
                     break
                 }
@@ -109,11 +117,9 @@ async function startRound() {
                     console.log(board)
                 }
             case "turn":
-                opponentBet = opponentAction(opponent)
+                opponentBet = await opponentAction(opponent)
                 playerBet = await playerAction(player1)
-                //opponentBet = parseInt(opponentBetStack.innerText)
-                //playerBet = parseInt(playerBetStack.innerText)
-                if(playerBet === "Fold"){
+                if (playerBet === "Fold") {
                     inRound = false
                     break
                 }
@@ -122,15 +128,14 @@ async function startRound() {
                     playerBetStack.innerHTML = 0
                     opponentBetStack.innerHTML = 0
                     board.push(deck.pop())
+                    console.log(board)
                     boardCardSlot5.appendChild(board[4].getHTML())
                     console.log(board)
                 }
             case "river":
-                opponentBet = opponentAction(opponent)
+                opponentBet = await opponentAction(opponent)
                 playerBet = await playerAction(player1)
-                //opponentBet = parseInt(opponentBetStack.innerText)
-                //playerBet = parseInt(playerBetStack.innerText)
-                if(playerBet === "Fold"){
+                if (playerBet === "Fold") {
                     inRound = false
                     break
                 }
@@ -146,44 +151,22 @@ async function startRound() {
                 opponentCardSlot2.appendChild(opponent.hand[1].getHTML())
                 console.log("we got here")
                 inRound = false
-                potDisplay.innerText = 0
                 document.getElementById("dealButton").style.visibility = "visible"
-                boardCardSlot1.innerHTML = ""
-                boardCardSlot2.innerHTML = ""
-                boardCardSlot3.innerHTML = ""
-                boardCardSlot4.innerHTML = ""
-                boardCardSlot5.innerHTML = ""
-                opponentCardSlot1.innerHTML = ""
-                opponentCardSlot2.innerHTML = ""
-                playerCardSlot1.innerHTML = ""
-                playerCardSlot2.innerHTML = ""
+                const playerHand = evaluateHand(player1, board)
+                const opponentHand = evaluateHand(opponent, board)
+                const pot = parseInt(potDisplay.innerText)
+                if (HAND_RANKINGS.indexOf(playerHand) > HAND_RANKINGS.indexOf(opponentHand)) {
+                    alert(`You win ${pot} $ with ${playerHand} !`)
+                    player1.addChips(pot)
+                } else if (HAND_RANKINGS.indexOf(playerHand) < HAND_RANKINGS.indexOf(opponentHand)) {
+                    alert(`You lose, opponent wins with ${opponentHand} !`)
+                    opponent.addChips(pot)
+                } else {
+                    alert(`Draw, players split the pot of ${pot} $`)
+                    player1.addChips(Math.floor(pot / 2))
+                    opponent.addChips(Math.floor(pot / 2))
+                }
                 break
-            // const playerHand = evaluateHand(player1, board)
-            // const opponentHand = evaluateHand(opponent, board)
-            // const pot = parseInt(potDisplay.innerText)
-            // if(HAND_RANKINGS.indexOf(playerHand) > HAND_RANKINGS.indexOf(opponentHand)){
-            //     //alert(`You win ${pot} $ with ${playerHand} !`)
-            //     setTimeout(3000)
-            //     player1.addChips(pot)
-            //     potDisplay.innerText = 0
-            // }else if(HAND_RANKINGS.indexOf(playerHand) < HAND_RANKINGS.indexOf(opponentHand)){
-            //     //alert(`You lose, opponent wins with ${opponentHand} !`)
-            //     setTimeout(3000)
-            //     opponent.addChips(pot)
-            //     potDisplay.innerText = 0
-            // }else{
-            //     //alert(`Draw, players split the pot of ${pot} $`)
-            //     setTimeout(3000)
-            //     player1.addChips(Math.floor(pot/2))
-            //     opponent.addChips(Math.floor(pot/2))
-            //     potDisplay.innerText = 0
-            // }
-            // boardCardSlot1.innerHTML = ""
-            // boardCardSlot2.innerHTML = ""
-            // boardCardSlot3.innerHTML = ""
-            // boardCardSlot4.innerHTML = ""
-            // boardCardSlot5.innerHTML = ""
-            // break
         }
     }
 }
@@ -362,42 +345,50 @@ function evaluateHand(player, board) {
 }
 
 
-function opponentAction(opponent) {
-    const random = 8 //Math.floor(Math.random() * 10)
-    console.log(random)
-    let potDisplay = document.getElementById("pot-display")
-    const playerBet = parseInt(playerBetStack.innerHTML)
-    const currentBet = parseInt(opponentBetStack.innerHTML)
-    const toCall = playerBet - currentBet
-    if (random < 3) { //fold
-        alert("Opponent folded, you win!")
-    } else if (2 < random && random < 8) { //check-call
-        if (opponent.chips >= largestBet) {
-            opponentBetStack.innerHTML = `${largestBet}`
-            opponent.removeChips(betIncrease)
-            pot = parseInt(potDisplay.innerText) + betIncrease
-            potDisplay.innerText = pot
-            console.log("Opponent calls")
-            return largestBet
-        } else {
-            const call = opponent.chips + currentBet
-            opponent.removeChips(opponent.chips)
-            opponentBetStack.innerHTML = `${call}`
-            pot = parseInt(potDisplay.innerText) + call
-            potDisplay.innerText = pot
-            console.log("Opponent calls and is all in")
-            return largestBet
+async function opponentAction(opponent) {
+    return new Promise((resolve) => {
+        const random = 8 //Math.floor(Math.random() * 10)
+        console.log(random)
+        let potDisplay = document.getElementById("pot-display")
+        const playerBet = parseInt(playerBetStack.innerHTML)
+        const currentBet = parseInt(opponentBetStack.innerHTML)
+        const toCall = playerBet - currentBet
+        if (random < 3) { //fold
+            alert("Opponent folded, you win!")
+        } else if (2 < random && random < 8) { //check-call
+            if (opponent.chips >= largestBet) {
+                opponentBetStack.innerHTML = `${largestBet}`
+                opponent.removeChips(betIncrease)
+                pot = parseInt(potDisplay.innerText) + betIncrease
+                potDisplay.innerText = pot
+                console.log("Opponent calls")
+                return largestBet
+            } else {
+                const call = opponent.chips + currentBet
+                opponent.removeChips(opponent.chips)
+                opponentBetStack.innerHTML = `${call}`
+                pot = parseInt(potDisplay.innerText) + call
+                potDisplay.innerText = pot
+                console.log("Opponent calls and is all in")
+                return largestBet
+            }
+        } else { //raise
+            //const raise = Math.floor(Math.random() * (opponent.chips - toCall + 1)) + toCall
+            let raise = 20 + (playerBet * 2)
+            if (raise >= opponent.chips) {
+                console.log("Opponent is ALL IN!")
+                raise = opponent.chips
+            }
+            const newBet = currentBet + raise
+            opponentBetStack.innerHTML = `${newBet}`
+            opponent.removeChips(raise)
+            potDisplay.innerText = parseInt(potDisplay.innerText) + raise
+            console.log(`Opponent raises to ${newBet}`)
+            resolve(newBet)
+
         }
-    } else { //raise
-        //const raise = Math.floor(Math.random() * (opponent.chips - toCall + 1)) + toCall
-        const raise = 20
-        const newBet = currentBet + raise
-        opponentBetStack.innerHTML = `${newBet}`
-        opponent.removeChips(raise)
-        potDisplay.innerText = parseInt(potDisplay.innerText) + raise
-        console.log(`Opponent raises to ${newBet}`)
-        return newBet
-    }
+    })
+
 
 }
 
@@ -433,7 +424,8 @@ document.getElementById("dealButton").addEventListener("click", () => {
     document.getElementById("dealButton").style.visibility = "hidden"
     startRound()
 })
-
+// TODO: fix bug where player bets double the amount on a raise
+// TODO: resolve opponent is all in/ player is all in
 function playerAction(player) {
     return new Promise((resolve) => {
         const handleBet = () => { //bet
@@ -448,13 +440,11 @@ function playerAction(player) {
             } else {
                 console.log("Bet amount: " + input)
                 player.removeChips(input)
-                let currentBet = parseInt(document.getElementById("player-current-bet").innerHTML)
-                let newBet = currentBet + input
-                document.getElementById("player-current-bet").innerHTML = `${newBet}`
-                let potDisplay = document.getElementById("pot-display")
-                let pot = parseInt(potDisplay.innerText) + input
-                potDisplay.innerText = pot
-                resolve(input)
+                console.log("current bet is:" + playerCurrentBet)
+                let newBet = playerCurrentBet + input
+                playerBetStack.innerHTML = `${newBet}`
+                potDisplay.innerText = parseInt(potDisplay.innerText) + input
+                resolve(newBet)
             }
         }
 
@@ -467,14 +457,11 @@ function playerAction(player) {
                 alert("You don't have enough chips to match the opponent's bet.")
             } else {
                 player.removeChips(toCall)
-                let currentBet = parseInt(document.getElementById("player-current-bet").innerHTML)
-                let newBet = currentBet + toCall
-                document.getElementById("player-current-bet").innerHTML = `${newBet}`
-                let potDisplay = document.getElementById("pot-display")
-                let pot = parseInt(potDisplay.innerText) + toCall
-                potDisplay.innerText = pot
-                console.log("Matched opponent's bet: " + toCall)
-                resolve(toCall)
+                let newBet = playerCurrentBet + toCall
+                playerBetStack.innerHTML = `${newBet}`
+                potDisplay.innerText = parseInt(potDisplay.innerText) + toCall
+                console.log("Matched opponent's bet: " + newBet)
+                resolve(newBet)
             }
         }
 
