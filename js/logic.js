@@ -80,13 +80,16 @@ async function startRound() {
     playerCardSlot2.appendChild(player1.hand[1].getHTML())
     opponentCardSlot1.appendChild(createOpponentHiddenCards("opponent-card-1"))
     opponentCardSlot2.appendChild(createOpponentHiddenCards("opponent-card-2"))
-
+    let opponentBet
+    let playerBet
     let inRound = true
     while (inRound) {
         switch (gameStage) {
             case "preflop":
-                let opponentBet = await opponentAction(opponent)
-                let playerBet = await playerAction(player1)
+                console.log("entered preflop")
+                //await new Promise(resolve => setTimeout(resolve, 3000));
+                opponentBet = await opponentAction(opponent)
+                playerBet = await playerAction(player1)
                 if (playerBet === "Fold") {
                     inRound = false
                     break
@@ -101,7 +104,10 @@ async function startRound() {
                     boardCardSlot3.appendChild(board[2].getHTML())
                     console.log(board)
                 }
+                break
             case "flop":
+                console.log("entered flop")
+                await new Promise(resolve => setTimeout(resolve, 3000))
                 opponentBet = await opponentAction(opponent)
                 playerBet = await playerAction(player1)
                 if (playerBet === "Fold") {
@@ -113,10 +119,13 @@ async function startRound() {
                     playerBetStack.innerHTML = 0
                     opponentBetStack.innerHTML = 0
                     board.push(deck.pop())
-                    boardCardSlot4.appendChild(board[3].getHTML())
+                    //boardCardSlot4.appendChild(board[3].getHTML())
                     console.log(board)
                 }
+                break
             case "turn":
+                console.log("entered turn")
+                //await new Promise(resolve => setTimeout(resolve, 3000))
                 opponentBet = await opponentAction(opponent)
                 playerBet = await playerAction(player1)
                 if (playerBet === "Fold") {
@@ -132,7 +141,9 @@ async function startRound() {
                     boardCardSlot5.appendChild(board[4].getHTML())
                     console.log(board)
                 }
+                break
             case "river":
+                console.log("entered river")
                 opponentBet = await opponentAction(opponent)
                 playerBet = await playerAction(player1)
                 if (playerBet === "Fold") {
@@ -144,7 +155,9 @@ async function startRound() {
                     playerBetStack.innerHTML = 0
                     opponentBetStack.innerHTML = 0
                 }
+                break
             case "showdown":
+                console.log("entered showdown")
                 opponentCardSlot1.innerHTML = ""
                 opponentCardSlot2.innerHTML = ""
                 opponentCardSlot1.appendChild(opponent.hand[0].getHTML())
@@ -424,9 +437,8 @@ document.getElementById("dealButton").addEventListener("click", () => {
     document.getElementById("dealButton").style.visibility = "hidden"
     startRound()
 })
-// TODO: fix bug where player bets double the amount on a raise
 // TODO: resolve opponent is all in/ player is all in
-function playerAction(player) {
+async function playerAction(player) {
     return new Promise((resolve) => {
         const handleBet = () => { //bet
             const input = parseInt(document.getElementById("userInput").value)
@@ -444,6 +456,8 @@ function playerAction(player) {
                 let newBet = playerCurrentBet + input
                 playerBetStack.innerHTML = `${newBet}`
                 potDisplay.innerText = parseInt(potDisplay.innerText) + input
+                document.getElementById("betButton").removeEventListener("click", handleCheck)
+                document.getElementById("betButton").removeEventListener("click", handleFold)
                 resolve(newBet)
             }
         }
@@ -461,6 +475,8 @@ function playerAction(player) {
                 playerBetStack.innerHTML = `${newBet}`
                 potDisplay.innerText = parseInt(potDisplay.innerText) + toCall
                 console.log("Matched opponent's bet: " + newBet)
+                document.getElementById("betButton").removeEventListener("click", handleBet)
+                document.getElementById("betButton").removeEventListener("click", handleFold)
                 resolve(newBet)
             }
         }
@@ -481,6 +497,8 @@ function playerAction(player) {
             playerCardSlot2.innerHTML = ""
             potDisplay.innerHTML = 0
             document.getElementById("dealButton").style.visibility = "visible"
+            document.getElementById("betButton").removeEventListener("click", handleBet)
+            document.getElementById("betButton").removeEventListener("click", handleCheck)
             resolve("Fold")
 
         }
